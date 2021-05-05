@@ -104,7 +104,6 @@ function openModalWindow(event) {
   event.preventDefault();
 
   document.addEventListener('keydown', changeImage);
-  document.addEventListener('keydown', onEscClose);
 
   if (event.target.classList.contains('gallery__image')) {
     refs.lightbox.classList.add('is-open');
@@ -116,27 +115,16 @@ function openModalWindow(event) {
 
 function closeModalWindow() {
   document.removeEventListener('keydown', changeImage);
-  document.removeEventListener('keydown', onEscClose);
 
   refs.lightbox.classList.remove('is-open');
   refs.lightboxImage.src = '';
   refs.lightboxImage.alt = '';
 }
 
-function onEscClose(e) {
-  if (e.key === 'Escape') {
-    closeModalWindow();
-  }
-}
-
 function changeImage(e) {
-  const imgSrc = getImageSrc(Gallery);
+  const imgSrc = Gallery.map(img => img.original);
 
   let newIndex = imgSrc.indexOf(refs.lightboxImage.src);
-
-  if (newIndex < 0) {
-    return;
-  }
 
   if (e.key === 'ArrowLeft') {
     newIndex -= 1;
@@ -148,17 +136,9 @@ function changeImage(e) {
     if (newIndex === imgSrc.length) {
       newIndex = 0;
     }
+  } else if (e.key === 'Escape') {
+    closeModalWindow();
   }
 
   refs.lightboxImage.src = imgSrc[newIndex];
-}
-
-function getImageSrc(images) {
-  const imgSrc = [];
-
-  for (const img of images) {
-    imgSrc.push(img.original);
-  }
-
-  return imgSrc;
 }
