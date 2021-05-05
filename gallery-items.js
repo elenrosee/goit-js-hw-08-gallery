@@ -63,3 +63,96 @@ export default [
     description: 'Lighthouse Coast Sea',
   },
 ];
+
+const refs = {
+  galleryContainer: document.querySelector('.js-gallery'),
+  lightbox: document.querySelector('.js-lightbox'),
+  lightboxBackdrop: document.querySelector('.lightbox__overlay'),
+  lightboxCloseButton: document.querySelector('.lightbox__button'),
+  lightboxImage: document.querySelector('.lightbox__image'),
+};
+
+import { default as Gallery } from './gallery-items.js';
+
+const galleryMarkup = createGalleryMarkup(Gallery);
+refs.galleryContainer.insertAdjacentHTML('afterbegin', galleryMarkup);
+
+refs.galleryContainer.addEventListener('click', openModalWindow);
+refs.lightboxCloseButton.addEventListener('click', closeModalWindow);
+refs.lightboxBackdrop.addEventListener('click', closeModalWindow);
+
+document.addEventListener('keydown', changeImage);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModalWindow();
+  }
+});
+
+function createGalleryMarkup(pictures) {
+  return pictures
+    .map(({ preview, original, description }) => {
+      return `
+      <li class="gallery__item">
+    <a class="gallery__link"
+      href="${original}" >
+      <img
+        class="gallery__image"
+        src="${preview}"
+        data-source="${original}"
+        alt="${description}"
+      />
+    </a>
+  </li>`;
+    })
+    .join('');
+}
+
+function openModalWindow(event) {
+  event.preventDefault();
+  if (event.target.classList.contains('gallery__image')) {
+    refs.lightbox.classList.add('is-open');
+
+    refs.lightboxImage.src = event.target.dataset.source;
+    refs.lightboxImage.alt = event.target.alt;
+  }
+}
+
+function closeModalWindow() {
+  refs.lightbox.classList.remove('is-open');
+  refs.lightboxImage.src = '';
+  refs.lightboxImage.alt = '';
+}
+
+function changeImage(e) {
+  const imgSrc = getImageSrc(Gallery);
+
+  let newIndex = imgSrc.indexOf(refs.lightboxImage.src);
+
+  if (newIndex < 0) {
+    return;
+  }
+
+  if (e.key === 'ArrowLeft') {
+    newIndex -= 1;
+    if (newIndex === -1) {
+      newIndex = imgSrc.length - 1;
+    }
+  } else if (e.key === 'ArrowRight') {
+    newIndex += 1;
+    if (newIndex === imgSrc.length) {
+      newIndex = 0;
+    }
+  }
+
+  refs.lightboxImage.src = imgSrc[newIndex];
+}
+
+function getImageSrc(images) {
+  const imgSrc = [];
+
+  for (const img of images) {
+    imgSrc.push(img.original);
+  }
+
+  return imgSrc;
+}
