@@ -81,13 +81,6 @@ refs.galleryContainer.addEventListener('click', openModalWindow);
 refs.lightboxCloseButton.addEventListener('click', closeModalWindow);
 refs.lightboxBackdrop.addEventListener('click', closeModalWindow);
 
-document.addEventListener('keydown', changeImage);
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeModalWindow();
-  }
-});
-
 function createGalleryMarkup(pictures) {
   return pictures
     .map(({ preview, original, description }) => {
@@ -109,6 +102,10 @@ function createGalleryMarkup(pictures) {
 
 function openModalWindow(event) {
   event.preventDefault();
+
+  document.addEventListener('keydown', changeImage);
+  document.addEventListener('keydown', onEscClose);
+
   if (event.target.classList.contains('gallery__image')) {
     refs.lightbox.classList.add('is-open');
 
@@ -118,9 +115,18 @@ function openModalWindow(event) {
 }
 
 function closeModalWindow() {
+  document.removeEventListener('keydown', changeImage);
+  document.removeEventListener('keydown', onEscClose);
+
   refs.lightbox.classList.remove('is-open');
   refs.lightboxImage.src = '';
   refs.lightboxImage.alt = '';
+}
+
+function onEscClose(e) {
+  if (e.key === 'Escape') {
+    closeModalWindow();
+  }
 }
 
 function changeImage(e) {
